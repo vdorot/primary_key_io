@@ -1,0 +1,31 @@
+version: '3'
+services:
+  benchmark:
+    container_name: primary_key_perf_benchmark_1
+    build: .
+    command: python main.py
+    depends_on:
+#      - postgres
+      - mariadb
+    volumes:
+      - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+  postgres:
+    container_name: primary_key_perf_postgres_1
+    image: postgres:14-alpine
+    command: postgres -c shared_buffers=1280 -c wal_buffers=1280
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: signals
+
+
+  mariadb:
+    container_name: primary_key_perf_mariadb_1
+    image: mariadb:10.8
+    environment:
+      MARIADB_ROOT_PASSWORD: pass
+      MARIADB_DATABASE: signals
+    volumes:
+      - ./mariadb_conf:/etc/mysql/conf.d:ro
+      - ./mariadb_conf:/etc/mysql/mariadb.conf.d:ro
